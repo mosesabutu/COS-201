@@ -2,8 +2,6 @@
 
 **MIVA Open University** — Mid-Semester Lab Assessment Project  
 **Author:** Moses Abutu Audu  
-**Matriculation Number:** 2025/A/CSC/0179  
-**Email:** m.abutu3785@miva.edu.ng  
 **Department:** B.Sc. Computer Science  
 **Course Code & Title:** COS 201 — Programming I  
 
@@ -18,7 +16,7 @@ The application is structured cleanly into two main components:
 
 ---
 
-## 🚀 Key Features & Operations
+## Key Features & Operations
 
 | Option | Operation | Implementation Highlights |
 | :---: | :--- | :--- |
@@ -47,7 +45,7 @@ Recursion is integrated into three core areas:
 
 ---
 
-## 💻 Compilation & Execution Instructions
+##  Compilation & Execution Instructions
 
 ### Prerequisites
 - JDK 8 or higher installed on your system.
@@ -83,6 +81,6 @@ Recursion is integrated into three core areas:
 
 ---
 
-## 📄 License & Attribution
+## License & Attribution
 Submitted as part of the COS 201 Mid-Semester Lab Assessment at **MIVA Open University**.  
 Copyright © 2026 Moses Abutu Audu. All Rights Reserved.
