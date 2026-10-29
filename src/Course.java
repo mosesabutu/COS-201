@@ -41,8 +41,16 @@ public class Course implements Serializable {
         if (courseTitle == null || courseTitle.trim().isEmpty()) {
             throw new IllegalArgumentException("Course title cannot be empty.");
         }
-        this.courseTitle = courseTitle.trim();
+
+        String sanitizedTitle = courseTitle.replace("|", "").trim();
+
+        if (sanitizedTitle.isEmpty()) {
+            throw new IllegalArgumentException("Course title cannot consist only of illegal delimiter symbols.");
+        }
+
+        this.courseTitle = sanitizedTitle;
     }
+
 
     public int getCreditUnits() {
         return creditUnits;
