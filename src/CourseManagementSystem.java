@@ -44,20 +44,23 @@ public class CourseManagementSystem {
      * Replaces standard while/for loops with indirect/direct recursion to fulfill criteria.
      */
     private static void runMenuLoop() {
-        displayMenu();
-        int choice = getUserChoice();
+        boolean running = true;
 
-        if (choice == 7) {
-            System.out.println("\n[+] Exiting system... Thank you for using Course Management System!");
-            return; // Terminal base case
+        while (running) {
+            displayMenu();
+            int choice = getUserChoice();
+
+            if (choice == 7) {
+                System.out.println("\n[+] Exiting system... Thank you for using Course Management System!");
+                running = false;
+                break;
+            }
+
+            executeChoice(choice);
+
+            System.out.println("\nPress ENTER to return to the main menu...");
+            scanner.nextLine();
         }
-
-        executeChoice(choice);
-        System.out.println("\nPress ENTER to return to the main menu...");
-        scanner.nextLine();
-
-        // Recursive Call to rerun menu loop
-        runMenuLoop();
     }
 
     private static void displayMenu() {
