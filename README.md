@@ -1,7 +1,7 @@
 # COS 201: Student Course Management System (Java)
 
 **MIVA Open University** — Mid-Semester Lab Assessment Project  
-**Author:** Moses Abutu Audu  
+**Author:** Borah Borah 
 **Department:** B.Sc. Computer Science  
 **Course Code & Title:** COS 201 — Programming I  
 
