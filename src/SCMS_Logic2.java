@@ -106,20 +106,58 @@ public class SCMS_Logic2 {
     }
 
     private static void loadCSV() {
-        courseMap.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE))) {
+        File file = new File(CSV_FILE);
+        if (!file.exists()) {
+            System.out.println("File not found: " + CSV_FILE);
+            return;
+        }
+
+        HashMap<String, CourseData> loaded = new HashMap<>();
+        int skipped = 0;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
+            int lineNumber = 0;
+
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length == 3) {
-                    courseMap.put(parts[0], new CourseData(parts[0], parts[1], Integer.parseInt(parts[2])));
+                lineNumber++;
+                if (line.trim().isEmpty()) {
+                    continue; // ignore blank lines
+                }
+
+                String[] parts = line.split(",", -1);
+                if (parts.length != 3) {
+                    System.out.println("Skipping line " + lineNumber + " (expected 3 fields): " + line);
+                    skipped++;
+                    continue;
+                }
+
+                String code = parts[0].trim();
+                String title = parts[1].trim();
+                String unitsText = parts[2].trim();
+
+                if (code.isEmpty()) {
+                    System.out.println("Skipping line " + lineNumber + " (empty course code): " + line);
+                    skipped++;
+                    continue;
+                }
+
+                try {
+                    int units = Integer.parseInt(unitsText);
+                    loaded.put(code.toUpperCase(), new CourseData(code, title, units));
+                } catch (NumberFormatException e) {
+                    System.out.println("Skipping line " + lineNumber + " (units is not a number): " + line);
+                    skipped++;
                 }
             }
-            System.out.println("Loaded from CSV.");
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found.");
+
+            // Only replace the in-memory list once the file has been read successfully.
+            courseMap.clear();
+            courseMap.putAll(loaded);
+            System.out.println("Loaded " + loaded.size() + " course(s) from CSV"
+                    + (skipped > 0 ? " (" + skipped + " malformed line(s) skipped)." : "."));
         } catch (IOException e) {
-            System.out.println("File read error.");
+            System.out.println("File read error: " + e.getMessage());
         }
     }
 }
