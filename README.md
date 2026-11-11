@@ -102,6 +102,9 @@ java CourseManagementSystem.java
 - **Total units:** iterative sum over the map values.
 - **Persistence:** CSV — one `code,title,units` line per course, written with `PrintWriter` and
   read with `BufferedReader` from **`courses_logic2.csv`**.
+- **Load safety:** blank lines are ignored; lines with the wrong number of fields, an empty
+  course code, or non-numeric units are reported and skipped. If the file is missing, the
+  in-memory list is left unchanged.
 
 ### Build & Run
 
