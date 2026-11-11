@@ -30,3 +30,6 @@ bin/
 .DS_Store
 /.idea
 cos201.iml
+### Runtime data files ###
+courses_logic1.dat
+courses_logic3.bin
