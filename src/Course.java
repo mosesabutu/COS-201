@@ -1,91 +1,117 @@
-import java.io.Serializable;
+import javax.swing.JOptionPane;
+import java.io.*;
+import java.util.ArrayList;
 
-/**
- * Course Class
- * Encapsulates data for a single course including course code, course title, and credit units.
- *
- * Author: Moses Abutu Audu
- * Matric No: 2025/A/CSC/0179
- * Course: COS 201 - Programming I
- */
-public class Course implements Serializable {
-    private static final long serialVersionUID = 1L;
+class CourseObj {
+    String code, title;
+    int units;
+    CourseObj(String c, String t, int u) {
+        code = c.toUpperCase().trim();
+        title = t.trim();
+        units = u;
+    }
+}
 
-    private String courseCode;
-    private String courseTitle;
-    private int creditUnits;
+public class Course {
+    private static ArrayList<CourseObj> list = new ArrayList<>();
+    private static final String FILE = "courses_logic3.bin";
 
-    public Course(String courseCode, String courseTitle, int creditUnits) {
-        setCourseCode(courseCode);
-        setCourseTitle(courseTitle);
-        setCreditUnits(creditUnits);
+    public static void main(String[] args) {
+        // Start the recursive GUI menu
+        recursiveMenu();
     }
 
-    // Getters and Setters with basic validation and formatting
-    public String getCourseCode() {
-        return courseCode;
-    }
-
-    public void setCourseCode(String courseCode) {
-        if (courseCode == null || courseCode.trim().isEmpty()) {
-            throw new IllegalArgumentException("Course code cannot be empty.");
-        }
-        this.courseCode = courseCode.trim().toUpperCase();
-    }
-
-    public String getCourseTitle() {
-        return courseTitle;
-    }
-
-    public void setCourseTitle(String courseTitle) {
-        if (courseTitle == null || courseTitle.trim().isEmpty()) {
-            throw new IllegalArgumentException("Course title cannot be empty.");
+    // RECURSION APPLIED HERE
+    private static void recursiveMenu() {
+        String menu = "Student Course Management GUI\n" +
+                "1. Add Course\n2. View Courses\n3. Search Course\n" +
+                "4. Compute Units\n5. Save File\n6. Load File\n7. Exit\n" +
+                "Enter option (1-7):";
+        
+        String input = JOptionPane.showInputDialog(null, menu, "Main Menu", JOptionPane.QUESTION_MESSAGE);
+        
+        // Handle cancel/close
+        if (input == null || input.trim().equals("7")) {
+            JOptionPane.showMessageDialog(null, "Exiting System...");
+            return; // Base case: exit recursion
         }
 
-        String sanitizedTitle = courseTitle.replace("|", "").trim();
-
-        if (sanitizedTitle.isEmpty()) {
-            throw new IllegalArgumentException("Course title cannot consist only of illegal delimiter symbols.");
+        try {
+            int choice = Integer.parseInt(input.trim());
+            processChoice(choice);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Error: Enter a valid number.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
-
-        this.courseTitle = sanitizedTitle;
+        
+        // Recursive call to show menu again
+        recursiveMenu();
     }
 
-
-    public int getCreditUnits() {
-        return creditUnits;
-    }
-
-    public void setCreditUnits(int creditUnits) {
-        if (creditUnits <= 0) {
-            throw new IllegalArgumentException("Credit units must be a positive integer.");
+    private static void processChoice(int choice) {
+        switch (choice) {
+            case 1:
+                try {
+                    String c = JOptionPane.showInputDialog("Course Code:");
+                    if(c == null) return;
+                    String t = JOptionPane.showInputDialog("Course Title:");
+                    String uStr = JOptionPane.showInputDialog("Units:");
+                    int u = Integer.parseInt(uStr.trim());
+                    list.add(new CourseObj(c, t, u));
+                    JOptionPane.showMessageDialog(null, "Success!");
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Invalid Unit Input!");
+                }
+                break;
+            case 2:
+                StringBuilder sb = new StringBuilder("--- Courses ---\n");
+                for (CourseObj o : list) sb.append(o.code).append(" | ").append(o.title).append(" | ").append(o.units).append("\n");
+                JOptionPane.showMessageDialog(null, list.isEmpty() ? "No Courses" : sb.toString());
+                break;
+            case 3:
+                String target = JOptionPane.showInputDialog("Search Code:");
+                if(target == null) return;
+                target = target.trim().toUpperCase();
+                boolean found = false;
+                for (CourseObj o : list) {
+                    if (o.code.equals(target)) {
+                        JOptionPane.showMessageDialog(null, "Found: " + o.title + " (" + o.units + ")");
+                        found = true; break;
+                    }
+                }
+                if (!found) JOptionPane.showMessageDialog(null, "Not Found.");
+                break;
+            case 4:
+                int sum = 0;
+                for (CourseObj o : list) sum += o.units;
+                JOptionPane.showMessageDialog(null, "Total Units: " + sum);
+                break;
+            case 5:
+                try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(FILE))) {
+                    dos.writeInt(list.size());
+                    for (CourseObj o : list) {
+                        dos.writeUTF(o.code);
+                        dos.writeUTF(o.title);
+                        dos.writeInt(o.units);
+                    }
+                    JOptionPane.showMessageDialog(null, "Saved!");
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Save Error");
+                }
+                break;
+            case 6:
+                try (DataInputStream dis = new DataInputStream(new FileInputStream(FILE))) {
+                    list.clear();
+                    int count = dis.readInt();
+                    for (int i = 0; i < count; i++) {
+                        list.add(new CourseObj(dis.readUTF(), dis.readUTF(), dis.readInt()));
+                    }
+                    JOptionPane.showMessageDialog(null, "Loaded!");
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Load Error");
+                }
+                break;
+            default:
+                JOptionPane.showMessageDialog(null, "Invalid Option (1-7).");
         }
-        this.creditUnits = creditUnits;
-    }
-
-    /**
-     * Converts course object into a delimited string format for file storage.
-     */
-    public String toFileFormat() {
-        return courseCode + "|" + courseTitle + "|" + creditUnits;
-    }
-
-    /**
-     * Reconstructs a Course object from a delimited file string line.
-     */
-    public static Course fromFileFormat(String fileLine) {
-        String[] parts = fileLine.split("\\|");
-        if (parts.length != 3) {
-            throw new IllegalArgumentException("Invalid data format in file line: " + fileLine);
-        }
-        String code = parts[0].trim();
-        String title = parts[1].trim();
-        int units = Integer.parseInt(parts[2].trim());
-        return new Course(code, title, units);
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%-12s | %-35s | %2d Units", courseCode, courseTitle, creditUnits);
     }
 }
