@@ -10,21 +10,24 @@
 
 The **Student Course Management System** manages a list of courses: adding records,
 viewing them, searching by course code, computing the total credit load, and saving/loading
-data to disk. The project contains **three independent implementations**, one per contributor
-branch, built around the same seven menu operations:
+data to disk. The repository contains a **baseline implementation on `main`** plus **three
+contributor implementations**, all built around the same seven menu operations:
 
 | Branch | Implementation | UI | Storage | Author |
 | :--- | :--- | :--- | :--- | :--- |
-| `Samuel` | Logic 1 — console application | Terminal (`java.util.Scanner`) | Java serialization (`.dat`) | Samuel |
+| `main` | Baseline — console application | Terminal (`java.util.Scanner`) | Pipe-delimited text (`courses.txt`) | Moses Abutu Audu |
+| `Samuel` | Logic 1 — console application | Terminal (`java.util.Scanner`) | Java serialization (`courses_logic1.dat`) | Samuel |
 | `Borah` | Logic 2 — console application | Terminal (`java.util.Scanner`) | CSV (`courses_logic2.csv`) | Borah |
-| `Daniel’s` | Logic 3 — GUI application | `javax.swing.JOptionPane` dialogs | Binary stream (`.bin`) | Daniel |
+| `Daniel’s` | Logic 3 — GUI application | `javax.swing.JOptionPane` dialogs | Binary stream (`courses_logic3.bin`) | Daniel |
 
-All three implementations use recursion and persist data locally, but they differ in how they
-interact with the user and how records are stored. The sections below document each branch so
-any of them can be built and run independently.
+All implementations use recursion and persist data locally, but they differ in how they
+interact with the user and how records are stored. The sections below document each
+implementation so any of them can be built and run independently.
 
-**Printable report:** [`COS201_SCMS_Report.odt`](COS201_SCMS_Report.odt) — a formatted
-mid-semester lab report covering all three implementations.
+**Printable reports:** a combined overview is available at
+[`COS201_SCMS_Report.odt`](COS201_SCMS_Report.odt). In addition, each contributor branch
+contains its own Miriam-style report: `COS201_SCMS_Report_Samuel.odt` on `Samuel`,
+`COS201_SCMS_Report_Borah.odt` on `Borah`, and `COS201_SCMS_Report_Daniel.odt` on `Daniel’s`.
 
 ---
 
@@ -41,6 +44,42 @@ Every implementation exposes the same seven operations:
 | **5** | Save to File | Writes the current course list to disk. |
 | **6** | Load from File | Restores the course list from disk. |
 | **7** | Exit | Ends the session. |
+
+---
+
+## Baseline Implementation — Console Application (`main` branch)
+
+### Components
+- `src/Course.java` — `Serializable` model holding `courseCode`, `courseTitle` and
+  `creditUnits`. Setters validate input (no blank code/title, positive units), normalize the
+  code to uppercase, and sanitize `|` out of titles. `toFileFormat()` / `fromFileFormat()`
+  convert records to and from the pipe-delimited storage format.
+- `src/CourseManagementSystem.java` — entry point, menu loop, recursive search, recursive unit
+  summation and file persistence.
+
+### Behaviour
+- **Menu:** iterative `while` loop driven by `Scanner`; the user presses ENTER to return to the
+  menu after each operation.
+- **Validation:** the model setters throw `IllegalArgumentException` for blank codes/titles,
+  non-positive units, or titles made only of delimiter characters.
+- **Search:** `recursiveSearch(targetCode, index)` performs a case-insensitive recursive linear
+  search (base cases: end of list → `null`, matching code → the course).
+- **Recursion:** `calculateTotalUnitsRecursive(index)` sums units from the end of the list down
+  to index `0` (base case: `index < 0`).
+- **Persistence:** records are written to **`courses.txt`** in `code|title|units` form with
+  `PrintWriter` and read back with `BufferedReader`. Existing records are auto-loaded silently
+  at startup.
+
+### Build & Run
+
+```bash
+git checkout main
+cd src
+javac Course.java CourseManagementSystem.java
+java CourseManagementSystem
+```
+
+> Run from `src/` so that `courses.txt` is created in the working directory.
 
 ---
 
@@ -159,6 +198,18 @@ java -cp out Course
 
 ## Repository Layout
 
+`main` branch — baseline console application:
+
+```text
+COS-201/
+├── README.md
+├── .gitignore
+├── courses.txt                     # Pipe-delimited course data
+└── src/
+    ├── Course.java                 # Serializable course model
+    └── CourseManagementSystem.java # Console application
+```
+
 `Samuel` branch — console application:
 
 ```text
@@ -196,6 +247,7 @@ Generated at runtime (not committed):
 
 | File | Branch | Format |
 | :--- | :--- | :--- |
+| `courses.txt` | `main` | Pipe-delimited text (`code\|title\|units`) |
 | `courses_logic1.dat` | `Samuel` | Serialized `ArrayList<Course>` |
 | `courses_logic2.csv` | `Borah` | Comma-separated text |
 | `courses_logic3.bin` | `Daniel’s` | Binary record stream |
@@ -214,6 +266,7 @@ Generated at runtime (not committed):
 
 Submitted as part of the COS 201 Mid-Semester Lab Assessment at **MIVA Open University**.
 
+- Baseline console implementation (`main`) — **Moses Abutu Audu**
 - Console implementation (Logic 1) — **Samuel**
 - Console implementation (Logic 2) — **Borah**
 - GUI implementation (Logic 3) — **Daniel**
